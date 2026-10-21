@@ -1,121 +1,102 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
 import './App.css'
+import LoanForm from './components/LoanForm'
+import ResultCard from './components/ResultCard'
+import Recommendations from './components/Recommendations'
+import { getDecision } from './utils/calculator'
+import { getRecommendations } from './utils/recommendations'
+import IncomeBreakdown from './components/IncomeBreakdown'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [result, setResult] = useState(null)
+  const [calcError, setCalcError] = useState('')
+
+  function handleSubmit(values) {
+    try {
+      const outcome = getDecision({
+        grossIncome: values.income,
+        monthlyExpenses: values.expenses,
+        loanAmount: values.loanAmount,
+        termYears: values.termYears,
+      })
+
+      const recommendations =
+        outcome.decision === 'approved'
+          ? null
+          : getRecommendations({
+              grossIncome: values.income,
+              monthlyExpenses: values.expenses,
+              loanAmount: values.loanAmount,
+              termYears: values.termYears,
+            })
+
+      setResult({ inputs: values, outcome, recommendations })
+      setCalcError('')
+    } catch (err) {
+      console.error(err)
+      setResult(null)
+      setCalcError('Something went wrong with the calculation. Please check your numbers.')
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="page">
+      <header className="header">
+        <h1>Loan Eligibility Simulator</h1>
+        <p>Check what you could afford before you apply.</p>
+      </header>
 
-      <div className="ticks"></div>
+      <main className="main">
+        <section className="card">
+          <h2>Your details</h2>
+          <LoanForm onSubmit={handleSubmit} />
+        </section>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        <section className="card">
+          <h2>Your results</h2>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+          {calcError && <p className="error">{calcError}</p>}
+
+          {!result && !calcError && (
+            <p>Fill in your details and press "Check eligibility".</p>
+          )}
+
+          {result && (
+  <>
+    <ResultCard
+      status={result.outcome.decision}
+      monthlyRepayment={result.outcome.repayment.monthlyPayment}
+      loanAmount={result.inputs.loanAmount}
+      termYears={result.inputs.termYears}
+      annualRate={result.outcome.rate}
+      leftoverAfter={result.outcome.affordability.remainingAfterRepayment}
+      reasons={result.outcome.reasons}
+    />
+
+    <IncomeBreakdown
+      grossIncome={result.inputs.income}
+      monthlyExpenses={result.inputs.expenses}
+      monthlyRepayment={result.outcome.repayment.monthlyPayment}
+      affordability={result.outcome.affordability}
+    />
+
+    {result.recommendations && (
+      <Recommendations
+        decision={result.outcome.decision}
+        options={result.recommendations.options}
+        noDisposable={result.recommendations.noDisposable}
+        original={result.inputs}
+      />
+    )}
+  </>
+)}
+        </section>
+      </main>
+
+      <footer className="footer">
+        <p>For illustration only. Not financial advice.</p>
+      </footer>
+    </div>
   )
 }
 

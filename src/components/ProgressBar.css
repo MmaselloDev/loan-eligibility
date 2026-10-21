@@ -1,0 +1,50 @@
+.progress {
+  --track: #e3e3e3;
+  --ok: #1b7a3d;
+  --warn: #a15c00;
+  --danger: #b3261e;
+  color: #1a1a1a;
+}
+
+.progress__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.35rem;
+  font-size: 0.95rem;
+}
+
+.progress__track {
+  position: relative;
+  height: 0.75rem;
+  background: var(--track);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress__fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+.progress__fill--ok     { background: var(--ok); }
+.progress__fill--warn   { background: var(--warn); }
+.progress__fill--danger { background: var(--danger); }
+
+/* 30% and 45% threshold lines */
+.progress__marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #1a1a1a;
+  opacity: 0.45;
+}
+
+.progress__note {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progress__fill { transition: none; }
+}

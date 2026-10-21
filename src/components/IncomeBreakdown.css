@@ -1,0 +1,49 @@
+.breakdown {
+  --chart-expenses: #6b7280;
+  --chart-repayment: #1f3a5f;
+  --chart-leftover: #1b7a3d;
+
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  color: #1a1a1a;
+}
+
+.breakdown__title {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+.breakdown__body {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.breakdown__summary {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+}
+.breakdown__summary strong { font-weight: 600; }
+
+.dot {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+
+.breakdown__note {
+  margin: 1rem 0 0;
+  font-weight: 600;
+  color: #b3261e;
+}
